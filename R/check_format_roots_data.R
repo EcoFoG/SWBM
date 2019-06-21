@@ -5,7 +5,7 @@
 #' e^{-lambda*l}}) to estimate the distribution of fine roots among the soil, at
 #' a 1cm resolution.
 #'
-#' @param roots_data data.frame, containing one-line-per-layer fine roots
+#' @param roots_data data.frame, containing one-line-per-layer fine roots percentages
 #'   percentage as well as upper and lower depth bounds of the sampled layers (always positive numbers: low values being close to the surface, and high value being deep)
 #' @param layer_init_col character, the name of the column containing upper (close to the surface) end depth for each layer
 #' @param layer_end_col  character, the name of the column containing lower (far from the surface) end depth for each layer
@@ -27,6 +27,7 @@ check_format_roots_data <- function(roots_data,
 
   roots_data <- check_rename_variable_col(layer_init_col, "init", roots_data)
   roots_data <- check_rename_variable_col(layer_end_col, "end", roots_data)
+  roots_data <- check_rename_variable_col(percent_col, "percent", roots_data)
 
   if(any(!roots_data$init > roots_data$end))
     stop("Something in your depth layer delimitations is going wrong")
