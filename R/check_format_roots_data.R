@@ -17,9 +17,9 @@
 #'
 #' @examples
 check_format_roots_data <- function(roots_data,
-                                    layer_init_col,
-                                    layer_end_col,
-                                    percent_col){
+                                    layer_init_col = "depth_layer_init",
+                                    layer_end_col = "depth_layer_end",
+                                    percent_col = "percentRoots"){
   if(!is.data.frame(roots_data))
     stop("the input data must be a data.frame object as described in the documentation")
   if(any(is.na(roots_data)))
@@ -29,31 +29,34 @@ check_format_roots_data <- function(roots_data,
   roots_data <- check_rename_variable_col(layer_end_col, "end", roots_data)
   roots_data <- check_rename_variable_col(percent_col, "percent", roots_data)
 
-  if(any(!roots_data$init > roots_data$end))
+  if(any(roots_data$init > roots_data$end))
     stop("Something in your depth layer delimitations is going wrong")
 
   # roots_data$med=ceiling((roots_data$init+roots_data$end )/2)
-  N_sampled <- nrow(roots_data$init)
+  N_sampled <- nrow(roots_data)
   N_modelled <- length((min(roots_data$init)+1):max(roots_data$end))
-  roots_model <- data.frame(init = rep(NA,N_modelled), end = rep(NA,N_modelled), depth = rep(NA,N_modelled), percent = rep(NA,N_modelled), modelled_roots_density = rep(NA,N_modelled))
+
+  roots_model <- data.frame(init = rep(NA,N_modelled), end = rep(NA,N_modelled), depth = 1:N_modelled, percent = rep(NA,N_modelled))
   roots_data <- roots_data[order(roots_data$init),]
-  l = min(roots_data$init)+1
-  for(i in N_sampled){
-    layers_temp <- (roots_data$init[i]+1):roots_data$end
+  # print(roots_data)
 
-    roots_model$init[l:l+(length(layers_temp)-1)] <- roots_data$init[i]
-    roots_model$end[l:l+(length(layers_temp)-1)] <- roots_data$end[i]
-    roots_model$depth[l:l+(length(layers_temp)-1)] <- layers_temp
-    roots_model$percent[l:l+(length(layers_temp)-1)] <- roots_data$p/length(layers_temp)
-
-    l = l+(length(layers_temp)-1)
+  for(i in 1:N_sampled){
+    init_temp <- roots_data$init[i]+1
+    end_temp <- roots_data$end[i]
+    # ifelse(i == N_sampled, roots_data$end[i], roots_data$end[i]-1)
+    layers_temp <- init_temp:end_temp
+    # print(layers_temp)
+    roots_model$init[layers_temp] <- roots_data$init[i]
+    roots_model$end[layers_temp] <- roots_data$end[i]
+    roots_model$depth[layers_temp] <- layers_temp
+    roots_model$percent[layers_temp] <- roots_data$percent[i]/length(layers_temp)
   }
 
-  model_rfd<-function(p)
+  model_rfd <- function(p)
   {
     percent_temp=p*exp(-p*roots_model$depth)
     squared_error=sum((percent_temp-roots_model$percent)^2)
-    return(Err)
+    return(squared_error)
   }
 
   lambda_roots <- as.numeric(optimize(model_rfd, c(0, 1))[1])
@@ -61,5 +64,6 @@ check_format_roots_data <- function(roots_data,
   roots_model$density <- lambda_roots*exp(-lambda_roots*roots_model$depth)
   roots_model$density <- roots_model$density/sum(roots_model$density)
 
-  return(list(root_parameters = roots_model, lambda_roots = lambda_roots))
+  return(root_parameters = roots_model)
+  # return(list(root_parameters = roots_model, lambda_roots = lambda_roots))
 }
