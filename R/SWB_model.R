@@ -249,6 +249,7 @@ SWB_model <- function(climate_data,
                                             PET_col = PET_col,
                                             light_intensity_col = light_intensity_col)
   rainfall <- climate_data$rainfall
+  # PET <- ifelse("PET" %in% names(climate_data),climate_data$PET, rep(3.97, nrow(climate_data)))
   PET <- climate_data$PET
   light_intensity <- climate_data$light_intensity
 
@@ -266,11 +267,11 @@ SWB_model <- function(climate_data,
   S_t <- 0.06 # From Cuartas et al. (2007)
   p_t <- 0.036 # From Cuartas et al. (2007)
   cc <- 0.99 # From Vincent et al. (2010)
-
+# print(PET)
   # Climate and PAI
 
 
-  PET <- 3.97 # From Guyaflux data
+  # PET <- 3.97 # From Guyaflux data
   I0 <- 586.8 # From Guyaflux data
   PAI <- 6.92 # From Guyaflux data
 
@@ -373,13 +374,13 @@ SWB_model <- function(climate_data,
 
   throughfall <- rainfall - interception
 
-  if(any(throughfall < 0)){
-    print(throughfall)
-    message("A throughfall inferior to 0 has been computed. This is not supposed to exist. Interception cannot be superior to precipitation.")
-    message(paste0("N.B.: ", sum(throughfall < 0), "values of interception are higher than their corresponding amount of incident rainfall..."))
-    return(ggplot2::ggplot(data = data.frame(t = rep(1:n_days,2), variable = c(rep("interception", n_days), rep("rainfall", n_days)), value = c(interception, rainfall)),
-                  mapping = ggplot2::aes(x = t, y = value, colour = variable))+ ggplot2::geom_point()+ ggplot2::geom_vline(xintercept = which(interception > rainfall), colour = "pink",alpha = 0.5))
-  }
+  # if(any(throughfall < 0)){
+  #   print(throughfall)
+  #   message("A throughfall inferior to 0 has been computed. This is not supposed to exist. Interception cannot be superior to precipitation.")
+  #   message(paste0("N.B.: ", sum(throughfall < 0), "values of interception are higher than their corresponding amount of incident rainfall..."))
+  #   return(ggplot2::ggplot(data = data.frame(t = rep(1:n_days,2), variable = c(rep("interception", n_days), rep("rainfall", n_days)), value = c(interception, rainfall)),
+  #                 mapping = ggplot2::aes(x = t, y = value, colour = variable))+ ggplot2::geom_point()+ ggplot2::geom_vline(xintercept = which(interception > rainfall), colour = "pink",alpha = 0.5) + ggplot2::ggtitle(paste0("interception and precipitation over days with model: ",model), subtitle = paste0("pink vertical lines show the ",sum(throughfall < 0)," days for which computed interception exceeds incident rainfall")))
+  # }
 
 
   positive_throughfall <- (throughfall > 0)
@@ -427,10 +428,13 @@ SWB_model <- function(climate_data,
   daily_understorey_and_soil_transpiration <- I0*exp(-k*PAI)*(1-FractG)-a
 
   daily_understorey_water_absorption_per_layer <- matrix(NA, nrow = n_layers, ncol = n_days)
-  for(d in 1:ndays){
-    daily_understorey_water_absorption_per_layer[,d] <- daily_understorey_and_soil_transpiration * understorey_absorption_distribution
-  }
 
+  # print(understorey_absorption_distribution)
+  for(d in 1:n_days){
+    daily_understorey_water_absorption_per_layer[,d] <- daily_understorey_and_soil_transpiration * understorey_absorption_distribution
+  # print(daily_understorey_water_absorption_per_layer[,d])
+  }
+ # print(daily_understorey_water_absorption_per_layer)
   ## Extractible water
   EW_max <- theta_FC - theta_PWP
   EW <- matrix(NA, nrow = n_layers, ncol = n_days)
@@ -450,8 +454,9 @@ SWB_model <- function(climate_data,
 
   Drainage <- rep(0, n_days)
   # Core loop on days -------------------------------------------------------
-
-  for( d in 1:n_days){
+  message(paste0("Computing water balance for the ", n_days, " inputed days"))
+  pb <- txtProgressBar(min = 2, max = n_days, style = 3)
+  for( d in 2:n_days){
     # For each layer: is the REW limiting tree water uptake ?
     stressed <- (REW_critical < threshold)
     # add a safety check
@@ -462,20 +467,20 @@ SWB_model <- function(climate_data,
       rho_tmp[stressed] <- (REW_critical[stressed]*rho/threshold)
     }
 
-    daily_tree_transpiration_per_layer <- rho_tmp*pet[i-1]*tree_roots_distribution
+    daily_tree_transpiration_per_layer <- rho_tmp*PET[d-1]*tree_roots_distribution
+    # print(PET)
+    # print(c(sum(rho_tmp),sum(daily_understorey_water_absorption_per_layer), sum(EW[,d-1])))
 
-    print(c(sum(rho_tmp),sum(daily_understorey_water_absorption_per_layer), sum(EW[,d])))
+    EW[,d] = EW[,d-1] - (daily_tree_transpiration_per_layer + daily_understorey_water_absorption_per_layer[d-1])
 
-    EW[,i] = EW[,i-1] - (daily_tree_transpiration_per_layer + daily_understorey_water_absorption_per_layer[i-1])
-
-    if(any(EW[,i] < 0)){
-      restneg=abs(sum(EW[EW[,i]<0,i]))
-      EW[EW[,i]<0,i]=0
+    if(any(EW[,d] < 0)){
+      restneg=abs(sum(EW[EW[,d]<0,d]))
+      EW[EW[,d]<0,d]=0
     }
     else{
       restneg=0
     }
-    restTr[i]=rho*pet[i-1] - sum(rho_tmp* pet[i-1]) + restneg
+    restTr[d]=rho*PET[d-1] - sum(rho_tmp* PET[d-1]) + restneg
 
 
 
@@ -505,16 +510,25 @@ SWB_model <- function(climate_data,
       }
     }
 
-    REW_critical <- EW[,i] / EW_max
-    REW_per_layer[,i] <- REW_critical*tree_roots_distribution
-    REW_global[i] <- sum(REW_per_layer)
+    REW_critical <- EW[,d] / EW_max
+    REW_per_layer[,d] <- REW_critical*tree_roots_distribution
+    # if(any(is.na(REW_per_layer[,d]))){
+    #   print(REW_per_layer[,d])
+    #   print(d)
+    #   stop("wut")
+    # }
+    REW_global[d] <- sum(REW_per_layer[,d])
+    # print(REW_global[d])
+    setTxtProgressBar(pb, d)
 
   }
 
-
+  close(pb)
 
   # Formatting output
+
   daily_aggregated_outputs <- data.frame(date = date, REW_global = REW_global, drainage = Drainage, restTr = restTr)
+  print(daily_aggregated_outputs$REW_global)
   REW_per_layer <- as.data.frame.matrix(REW_per_layer)
   EW <- as.data.frame.matrix(EW)
   row.names(REW_per_layer) <- row.names(EW) <- 1:n_layers

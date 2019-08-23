@@ -63,7 +63,7 @@ check_format_climate_data <- function(climate_data,
                                       timestep = "daily",
                                       date_col = "date",
                                       date_format = "dmy",
-                                      PET_col = NULL,
+                                      PET_col = "pet",
                                       light_intensity_col = NULL){
 
 
@@ -101,7 +101,7 @@ check_format_climate_data <- function(climate_data,
     }
     else PET <- climate_data[,which(names(climate_data == PET_col))]
   }
-  else PET <- rep(586.8, length(rainfall))
+  else PET <- rep(3.97, length(rainfall))
 
   if(!is.null(light_intensity_col)){
     if(!is.character(light_intensity_col)| length(light_intensity_col != 1)){
@@ -109,7 +109,7 @@ check_format_climate_data <- function(climate_data,
     }
     else light_intensity <- climate_data[,which(names(climate_data == light_intensity_col))]
   }
-  else light_intensity <- rep(3.97, length(rainfall))
+  else light_intensity <- rep(568.8, length(rainfall))
 
 
 # Check date class, parse it if possible and necessary --------------------

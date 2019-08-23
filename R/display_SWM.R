@@ -1,7 +1,7 @@
 display_SWM <- function(model_output,
                         what = "REW_global",
                         type = "line",
-                        save_graph,
+                        save_graph = F,
                         path_save,
                         filename,
                         device,
@@ -71,14 +71,16 @@ display_SWM <- function(model_output,
 
   data <- data[,c("date",what)]
   data <- gather(data=data, variable, value, -date)
+  # stop("ok")
+  print(head(data))
   plot <- ggplot(data = data, mapping = aes(x = date, y = value))+
     do.call(paste0("geom_",type),args = geom_args)+
-    facet_wrap(~variable, scales = "free.y")+
+    facet_wrap(~variable, scales = "free_y")+
     ggtitle(label = title, subtitle = subtitle)
   return(plot)
 
 }
-.facet_SWM_outputs <- function(model_output,
+.display_single_SWM_output <- function(model_output,
                                what,
                                type,
                                ...){
