@@ -221,6 +221,7 @@ SWB_model <- function(climate_data,
                       date_format = "dmy",
                       PET_col = NULL,
                       light_intensity_col = NULL,
+                      model = "v1_package",
                       # layer_limits_cols = c("depth_layer_init","depth_layer_end"),
                       # root_dist_col = "percentRoots",
                       # theta_pwp_col = "ThetaPWP",
@@ -249,7 +250,7 @@ SWB_model <- function(climate_data,
                                             light_intensity_col = light_intensity_col)
   rainfall <- climate_data$rainfall
   PET <- climate_data$PET
-  light_intensity <- data$light_intensity
+  light_intensity <- climate_data$light_intensity
 
 
 
@@ -366,13 +367,18 @@ SWB_model <- function(climate_data,
                                        E_m,
                                        R_m,
                                        p_t,
-                                       cc)
+                                       cc,
+                                       model = model,
+                                       S_t = S_t)
 
   throughfall <- rainfall - interception
 
   if(any(throughfall < 0)){
     print(throughfall)
-    stop("A throughfall inferior to 0 has been computed. This is not supposed to exist. Interception cannot be superior to precipitation.")
+    message("A throughfall inferior to 0 has been computed. This is not supposed to exist. Interception cannot be superior to precipitation.")
+    message(paste0("N.B.: ", sum(throughfall < 0), "values of interception are higher than their corresponding amount of incident rainfall..."))
+    return(ggplot2::ggplot(data = data.frame(t = rep(1:n_days,2), variable = c(rep("interception", n_days), rep("rainfall", n_days)), value = c(interception, rainfall)),
+                  mapping = ggplot2::aes(x = t, y = value, colour = variable))+ ggplot2::geom_point()+ ggplot2::geom_vline(xintercept = which(interception > rainfall), colour = "pink",alpha = 0.5))
   }
 
 
