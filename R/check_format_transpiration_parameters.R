@@ -25,7 +25,7 @@ check_format_transpiration_parameters <- function(...){
 
   # Extract the ellipsis and set the default values of the interception parameters
   .dots <- list(...)
-  ThetaTrt <- 0.75
+  ThetaTrt <- 0.9971838
   Thresholdt <- 0.4
 
 
@@ -33,8 +33,10 @@ check_format_transpiration_parameters <- function(...){
 
 
   if(length(.dots) == 0){
-    print(names(.dots))
-    stop("what")
+    # print(names(.dots))
+    message("returning default understorey parameters since nothing has been given as an input...")
+
+    return(list(ThetaTr = ThetaTrt, Threshold = Thresholdt))
   }
   if(length(.dots) == 1){
     dot <- .dots[[1]]
@@ -71,7 +73,7 @@ check_format_transpiration_parameters <- function(...){
     )
   }
 
-  return(list(ThetaTr = ThetaTrt, Threshold = Thersholdt))
+  return(list(ThetaTr = ThetaTrt, Threshold = Thresholdt))
 }
 
 

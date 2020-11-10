@@ -1,19 +1,13 @@
 Package: SWBM
 Type: Package
-Title: Soil Water Balance Model
+Title: REW computation for Paracou with the Soil Water Balance Model (Wagner et al 2011).
 Version: 0.1.0
-Authors@R: c(
-    person("Géraldine", "Derroire", email="geraldine.derroire@ecofog.gf", role="aut"),
-    person("Bruno", "Hérault", email="bruno.herault@cirad.fr", role="aut"),
-    person("Eric", "Marcon", email="eric.marcon@ecofog.gf", role="aut"),
-    person("Elie", "Guedj", email="elie.guedj@ecofog.gf", role=c("aut", "cre")),
-    person("Gaëlle", "Jaouen", email="gaelle.jaouen@ecofog.gf", role="aut"),
-    person("Camille", "Piponiot", email="camille.piponiot@ecofog.gf", role="aut")
-    )
-Description: TODO
-License: GNU General Public License
+Author: Assembled by N. Page with original code from F. Wagner
+Maintainer: Geraldine Derroire <geraldine.derroire@ecofog.gf>
+Description: Computes the REW from Soil Water Balance Model (Wagner et al 2011) using F. Wagner's original code wrapped in a R package. The model is valid for the Paracou station (French Guiana) only.
+License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
-Suggests: 
+Suggests:
     testthat
+RoxygenNote: 7.0.2

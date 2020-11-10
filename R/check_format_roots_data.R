@@ -64,6 +64,6 @@ check_format_roots_data <- function(roots_data,
   roots_model$density <- lambda_roots*exp(-lambda_roots*roots_model$depth)
   roots_model$density <- roots_model$density/sum(roots_model$density)
 
-  return(root_parameters = roots_model)
+  return( list(lambda_roots = lambda_roots, N_layer = nrow(roots_model)))
   # return(list(root_parameters = roots_model, lambda_roots = lambda_roots))
 }

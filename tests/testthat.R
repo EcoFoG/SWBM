@@ -1,4 +1,4 @@
 library(testthat)
-library(SWBM)
+library(SWMviaOriginalCode)
 
-test_check("SWBM")
+test_check("SWMviaOriginalCode")

@@ -13,6 +13,9 @@ replace default values in the model, or a single argument containing these
 parameters in a grouped form (either list or single row data.frame). See
 details for information on nomenclature and parameters.}
 }
+\value{
+
+}
 \description{
 This function is initially meant for internal use.
 }

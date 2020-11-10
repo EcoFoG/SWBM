@@ -4,8 +4,12 @@
 \alias{check_format_roots_data}
 \title{Prepare the root parameters for use un the Soil Water Balance model}
 \usage{
-check_format_roots_data(roots_data, layer_init_col = "depth_layer_init",
-  layer_end_col = "depth_layer_end", percent_col = "percentRoots")
+check_format_roots_data(
+  roots_data,
+  layer_init_col = "depth_layer_init",
+  layer_end_col = "depth_layer_end",
+  percent_col = "percentRoots"
+)
 }
 \arguments{
 \item{roots_data}{data.frame, containing one-line-per-layer fine roots percentages
