@@ -83,7 +83,7 @@ run_original_SWM <- function(rainfall_data = NULL,
     file <- "lib/SWMoutput2013_avec_drainage.dll"
   }
 
-  dyn.load(system.file(file, package="SWMviaOriginalCode"))
+  dyn.load(system.file(file, package="SWBM"))
 
   data("default_arguments")
   # data(m3)
