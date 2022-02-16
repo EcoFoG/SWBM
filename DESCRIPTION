@@ -1,7 +1,7 @@
 Package: SWBM
 Type: Package
 Title: REW computation for Paracou with the Soil Water Balance Model (Wagner et al 2011).
-Version: 0.1.0
+Version: 0.1.1
 Author: Assembled by N. Page with original code from F. Wagner
 Maintainer: Geraldine Derroire <geraldine.derroire@ecofog.gf>
 Description: Computes the REW from Soil Water Balance Model (Wagner et al 2011) using F. Wagner's original code wrapped in a R package. The model is valid for the Paracou station (French Guiana) only.
